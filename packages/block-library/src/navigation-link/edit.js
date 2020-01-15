@@ -174,13 +174,18 @@ function NavigationLinkEdit( {
 									title: newTitle = '',
 									url: newURL = '',
 									opensInNewTab: newOpensInNewTab,
-								} = {} ) => setAttributes( {
-									title: escape( newTitle ),
-									url: newURL,
-									label: label || escape( newTitle ),
-									opensInNewTab: newOpensInNewTab,
-								} ) }
-								onClose={ () => setIsLinkOpen( false ) }
+								} = {} ) => {
+									setAttributes( {
+										title: escape( newTitle ),
+										url: newURL,
+										label: label || escape( newTitle ),
+										opensInNewTab: newOpensInNewTab,
+									} );
+									setIsLinkOpen( false );
+								} }
+								onClose={ () => {
+									setIsLinkOpen( false );
+								} }
 							/>
 						</Popover>
 					) }
