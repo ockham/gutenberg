@@ -1,14 +1,19 @@
 ## Master
 
+### Breaking Changes
+
+- This package requires now `node` v10.0.0 or later, and `npm` v6.9.0 or later ([#18048](https://github.com/WordPress/gutenberg/pull/18048)).
+- The minimum version required for `npm` in `check-enginges` script was increased to `6.9.0+` ([#18048](https://github.com/WordPress/gutenberg/pull/18048)).
+
 ### New Features
 
-- Add SVGR support to compile SVG files to React components using the `@svgr/webpack` plugin.  [#18243](https://github.com/WordPress/gutenberg/pull/18243)
+- Add SVGR support to compile SVG files to React components using the `@svgr/webpack` plugin ([#18243](https://github.com/WordPress/gutenberg/pull/18243)).
 
 ## 6.1.1 (2020-01-01)
 
 ### Bug Fixes
 
-- Update `jest-preset-default` dependency to fix preset file extension for inclusion in NPM deployments. ([#19306](https://github.com/WordPress/gutenberg/pull/19306)).
+- Update `jest-preset-default` dependency to fix preset file extension for inclusion in NPM deployments ([#19306](https://github.com/WordPress/gutenberg/pull/19306)).
 
 ## 6.1.0 (2019-12-20)
 
