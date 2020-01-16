@@ -53,17 +53,14 @@ export const BlockComponent = forwardRef( ( { children, tagName, ...props }, ref
 
 	ref = ref || fallbackRef;
 
-	function selector( select ) {
-		const { isDraggingBlocks } = select( 'core/block-editor' );
-		return {
-			isDraggingBlocks: isDraggingBlocks(),
-		};
-	}
-
 	const onSelectionStart = useContext( Context );
 	// In addition to withSelect, we should favor using useSelect in this component going forward
 	// to avoid leaking new props to the public API (editor.BlockListBlock filter)
-	const { isDraggingBlocks } = useSelect( selector, [] );
+	const { isDraggingBlocks } = useSelect( ( select ) => {
+		return {
+			isDraggingBlocks: select( 'core/block-editor' ).isDraggingBlocks(),
+		};
+	}, [] );
 
 	const {
 		__unstableSetSelectedMountedBlock,
