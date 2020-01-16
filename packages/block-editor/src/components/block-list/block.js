@@ -48,7 +48,7 @@ import { Context } from './root-container';
 
 const BlockContext = createContext();
 
-export const Block = forwardRef( ( { children, ...props }, ref ) => {
+export const BlockComponent = forwardRef( ( { children, tagName, ...props }, ref ) => {
 	const fallbackRef = useRef();
 
 	ref = ref || fallbackRef;
@@ -242,13 +242,17 @@ export const Block = forwardRef( ( { children, ...props }, ref ) => {
 	);
 
 	const blockElementId = `block-${ clientId }`;
+	const Animated = animated[ tagName ];
 
 	return (
-		<animated.div
+		<Animated
+			// Overrideable props.
+			aria-label={ blockLabel }
+			role="group"
 			{ ...props }
 			id={ blockElementId }
 			ref={ ref }
-			className={ wrapperClassName }
+			className={ classnames( wrapperClassName, props.className ) }
 			data-block={ clientId }
 			data-type={ name }
 			// Only allow shortcuts when a blocks is selected and not locked.
@@ -256,22 +260,28 @@ export const Block = forwardRef( ( { children, ...props }, ref ) => {
 			// Only allow selection to be started from a selected block.
 			onMouseLeave={ isSelected ? onMouseLeave : undefined }
 			tabIndex="0"
-			aria-label={ blockLabel }
-			role="group"
 			{ ...wrapperProps }
-			style={
-				wrapperProps && wrapperProps.style ?
-					{
-						...wrapperProps.style,
-						...animationStyle,
-					} :
-					animationStyle
-			}
+			style={ {
+				...( ( wrapperProps && wrapperProps.style ) || {} ),
+				...( props.style || {} ),
+				...animationStyle,
+			} }
 		>
 			{ children }
-		</animated.div>
+		</Animated>
 	);
 } );
+
+const elements = [ 'p', 'div' ];
+
+const ExtendedBlockComponent = elements.reduce( ( acc, element ) => {
+	acc[ element ] = forwardRef( ( props, ref ) => {
+		return <BlockComponent { ...props } ref={ ref } tagName={ element } />;
+	} );
+	return acc;
+}, BlockComponent );
+
+export const Block = ExtendedBlockComponent;
 
 function BlockListBlock( {
 	mode,
@@ -376,31 +386,31 @@ function BlockListBlock( {
 					<>
 						{ blockEdit }
 						{ mode === 'html' && (
-							<Block>
+							<Block.div>
 								<BlockHtml clientId={ clientId } />
-							</Block>
+							</Block.div>
 						) }
 					</>
 				) }
 				{ isValid && ! lightBlockWrapper && (
-					<Block>
+					<Block.div>
 						{ blockEdit }
 						{ mode === 'html' && (
 							<BlockHtml clientId={ clientId } />
 						) }
-					</Block>
+					</Block.div>
 				) }
 				{ ! isValid && (
-					<Block>
+					<Block.div>
 						<BlockInvalidWarning clientId={ clientId } />
 						<div>{ getSaveElement( blockType, attributes ) }</div>
-					</Block>
+					</Block.div>
 				) }
 			</BlockCrashBoundary>
 			{ !! hasError && (
-				<Block>
+				<Block.div>
 					<BlockCrashWarning />
-				</Block>
+				</Block.div>
 			) }
 		</BlockContext.Provider>
 	);
