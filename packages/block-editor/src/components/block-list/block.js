@@ -8,7 +8,7 @@ import { animated } from 'react-spring/web.cjs';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, useLayoutEffect, useState, useContext, forwardRef } from '@wordpress/element';
+import { useRef, useEffect, useLayoutEffect, useState, useContext, forwardRef, createContext } from '@wordpress/element';
 import {
 	focus,
 	isTextField,
@@ -21,6 +21,7 @@ import {
 	isReusableBlock,
 	isUnmodifiedDefaultBlock,
 	getUnregisteredTypeHandlerName,
+	hasBlockSupport,
 } from '@wordpress/blocks';
 import { withFilters } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -45,16 +46,16 @@ import { isInsideRootBlock } from '../../utils/dom';
 import useMovingAnimation from './moving-animation';
 import { Context } from './root-container';
 
-const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
+const BlockContext = createContext();
+
+export const Block = forwardRef( ( { children, ...props }, ref ) => {
+	const fallbackRef = useRef();
+
+	ref = ref || fallbackRef;
+
 	function selector( select ) {
-		const {
-			isDraggingBlocks,
-			__unstableGetBlockWithoutInnerBlocks,
-		} = select( 'core/block-editor' );
-		const { name, attributes } = __unstableGetBlockWithoutInnerBlocks( clientId ) || {};
+		const { isDraggingBlocks } = select( 'core/block-editor' );
 		return {
-			name,
-			attributes,
 			isDraggingBlocks: isDraggingBlocks(),
 		};
 	}
@@ -62,11 +63,43 @@ const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
 	const onSelectionStart = useContext( Context );
 	// In addition to withSelect, we should favor using useSelect in this component going forward
 	// to avoid leaking new props to the public API (editor.BlockListBlock filter)
+	const { isDraggingBlocks } = useSelect( selector, [] );
+
 	const {
+		__unstableSetSelectedMountedBlock,
+	} = useDispatch( 'core/block-editor' );
+
+	useLayoutEffect( () => {
+		if ( isSelected || isFirstMultiSelected ) {
+			__unstableSetSelectedMountedBlock( clientId );
+		}
+	}, [ isSelected, isFirstMultiSelected ] );
+
+	const {
+		clientId,
+		wrapperProps,
+		initialPosition,
+		isSelected,
+		isFirstMultiSelected,
+		isMultiSelecting,
+		isNavigationMode,
+		isPartOfMultiSelection,
+		enableAnimation,
+		animateOnChange,
+		onInsertDefaultBlockAfter,
+		onRemove,
+		isFocusMode,
+		isTypingWithinBlock,
+		hasSelectedUI,
+		isValid,
+		hasError,
+		isEmptyDefaultBlock,
+		isMultiSelected,
+		isAncestorOfSelectedBlock,
+		className,
+		isLocked,
 		name,
-		attributes,
-		isDraggingBlocks,
-	} = useSelect( selector, [] );
+	} = useContext( BlockContext );
 
 	const blockType = getBlockType( name );
 	// translators: %s: Type of block (i.e. Text, Image etc)
@@ -129,7 +162,7 @@ const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
 	] );
 
 	// Block Reordering animation
-	const animationStyle = useMovingAnimation( wrapper, isSelected || isPartOfMultiSelection, isSelected || isFirstMultiSelected, enableAnimation, animateOnChange );
+	const animationStyle = useMovingAnimation( ref, isSelected || isPartOfMultiSelection, isSelected || isFirstMultiSelected, enableAnimation, animateOnChange );
 
 	// Other event handlers
 
@@ -208,18 +241,10 @@ const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
 		className
 	);
 
-	// Determine whether the block has props to apply to the wrapper.
-	if ( blockType.getEditWrapperProps ) {
-		wrapperProps = {
-			...wrapperProps,
-			...blockType.getEditWrapperProps( attributes ),
-		};
-	}
-
 	const blockElementId = `block-${ clientId }`;
 
 	return (
-		<animated.p
+		<animated.div
 			{ ...props }
 			id={ blockElementId }
 			ref={ ref }
@@ -244,7 +269,7 @@ const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
 			}
 		>
 			{ children }
-		</animated.p>
+		</animated.div>
 	);
 } );
 
@@ -280,16 +305,6 @@ function BlockListBlock( {
 	isMultiSelecting,
 	hasSelectedUI = true,
 } ) {
-	const {
-		__unstableSetSelectedMountedBlock,
-	} = useDispatch( 'core/block-editor' );
-
-	useLayoutEffect( () => {
-		if ( isSelected || isFirstMultiSelected ) {
-			__unstableSetSelectedMountedBlock( clientId );
-		}
-	}, [ isSelected, isFirstMultiSelected ] );
-
 	// Handling the error state
 	const [ hasError, setErrorState ] = useState( false );
 	const onBlockError = () => setErrorState( true );
@@ -318,31 +333,77 @@ function BlockListBlock( {
 
 	const blockType = getBlockType( name );
 
-	return <>
-		<BlockCrashBoundary onError={ onBlockError }>
-			{ isValid && (
-				<>
-					{ blockEdit }
-					{ mode === 'html' && (
-						<Block clientId={ clientId }>
+	// Determine whether the block has props to apply to the wrapper.
+	if ( blockType.getEditWrapperProps ) {
+		wrapperProps = {
+			...wrapperProps,
+			...blockType.getEditWrapperProps( attributes ),
+		};
+	}
+
+	const value = {
+		clientId,
+		wrapperProps,
+		initialPosition,
+		isSelected,
+		isFirstMultiSelected,
+		isMultiSelecting,
+		isNavigationMode,
+		isPartOfMultiSelection,
+		enableAnimation,
+		animateOnChange,
+		onInsertDefaultBlockAfter,
+		onRemove,
+		isFocusMode,
+		isTypingWithinBlock,
+		hasSelectedUI,
+		isValid,
+		hasError,
+		isEmptyDefaultBlock,
+		isMultiSelected,
+		isAncestorOfSelectedBlock,
+		className,
+		isLocked,
+		name,
+	};
+
+	const lightBlockWrapper = hasBlockSupport( blockType, 'lightBlockWrapper', false );
+
+	return (
+		<BlockContext.Provider value={ value }>
+			<BlockCrashBoundary onError={ onBlockError }>
+				{ isValid && lightBlockWrapper && (
+					<>
+						{ blockEdit }
+						{ mode === 'html' && (
+							<Block>
+								<BlockHtml clientId={ clientId } />
+							</Block>
+						) }
+					</>
+				) }
+				{ isValid && ! lightBlockWrapper && (
+					<Block>
+						{ blockEdit }
+						{ mode === 'html' && (
 							<BlockHtml clientId={ clientId } />
-						</Block>
-					) }
-				</>
-			) }
-			{ ! isValid && (
-				<Block clientId={ clientId }>
-					<BlockInvalidWarning clientId={ clientId } />
-					<div>{ getSaveElement( blockType, attributes ) }</div>
+						) }
+					</Block>
+				) }
+				{ ! isValid && (
+					<Block>
+						<BlockInvalidWarning clientId={ clientId } />
+						<div>{ getSaveElement( blockType, attributes ) }</div>
+					</Block>
+				) }
+			</BlockCrashBoundary>
+			{ !! hasError && (
+				<Block>
+					<BlockCrashWarning />
 				</Block>
 			) }
-		</BlockCrashBoundary>
-		{ !! hasError && (
-			<Block clientId={ clientId }>
-				<BlockCrashWarning />
-			</Block>
-		) }
-	</>;
+		</BlockContext.Provider>
+	);
 }
 
 const applyWithSelect = withSelect(

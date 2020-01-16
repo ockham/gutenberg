@@ -2,20 +2,17 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { animated } from 'react-spring/web.cjs';
 
 /**
  * WordPress dependencies
  */
 import { withFilters } from '@wordpress/components';
 import { getBlockDefaultClassName, hasBlockSupport, getBlockType } from '@wordpress/blocks';
-import { forwardRef } from '@wordpress/element';
 
-const Block = forwardRef( ( props, ref ) => {
-	return (
-		<animated.p { ...props } ref={ ref } data-test="lala" />
-	);
-} );
+/**
+ * Internal dependencies
+ */
+import { Block } from '../block-list/block';
 
 export const Edit = ( props ) => {
 	const { attributes = {}, name } = props;
