@@ -8,7 +8,7 @@ import { animated } from 'react-spring/web.cjs';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, useLayoutEffect, useState, useContext } from '@wordpress/element';
+import { useRef, useEffect, useLayoutEffect, useState, useContext, forwardRef } from '@wordpress/element';
 import {
 	focus,
 	isTextField,
@@ -45,62 +45,28 @@ import { isInsideRootBlock } from '../../utils/dom';
 import useMovingAnimation from './moving-animation';
 import { Context } from './root-container';
 
-function BlockListBlock( {
-	mode,
-	isFocusMode,
-	isLocked,
-	clientId,
-	isSelected,
-	isMultiSelected,
-	isPartOfMultiSelection,
-	isFirstMultiSelected,
-	isTypingWithinBlock,
-	isEmptyDefaultBlock,
-	isAncestorOfSelectedBlock,
-	isSelectionEnabled,
-	className,
-	name,
-	isValid,
-	attributes,
-	initialPosition,
-	wrapperProps,
-	setAttributes,
-	onReplace,
-	onInsertBlocksAfter,
-	onMerge,
-	onRemove,
-	onInsertDefaultBlockAfter,
-	toggleSelection,
-	animateOnChange,
-	enableAnimation,
-	isNavigationMode,
-	isMultiSelecting,
-	hasSelectedUI = true,
-} ) {
+const Block = forwardRef( ( { children, clientId, ...props }, ref ) => {
+	function selector( select ) {
+		const {
+			isDraggingBlocks,
+			__unstableGetBlockWithoutInnerBlocks,
+		} = select( 'core/block-editor' );
+		const { name, attributes } = __unstableGetBlockWithoutInnerBlocks( clientId ) || {};
+		return {
+			name,
+			attributes,
+			isDraggingBlocks: isDraggingBlocks(),
+		};
+	}
+
 	const onSelectionStart = useContext( Context );
 	// In addition to withSelect, we should favor using useSelect in this component going forward
 	// to avoid leaking new props to the public API (editor.BlockListBlock filter)
-	const { isDraggingBlocks } = useSelect( ( select ) => {
-		return {
-			isDraggingBlocks: select( 'core/block-editor' ).isDraggingBlocks(),
-		};
-	}, [] );
 	const {
-		__unstableSetSelectedMountedBlock,
-	} = useDispatch( 'core/block-editor' );
-
-	// Reference of the wrapper
-	const wrapper = useRef( null );
-
-	useLayoutEffect( () => {
-		if ( isSelected || isFirstMultiSelected ) {
-			__unstableSetSelectedMountedBlock( clientId );
-		}
-	}, [ isSelected, isFirstMultiSelected ] );
-
-	// Handling the error state
-	const [ hasError, setErrorState ] = useState( false );
-	const onBlockError = () => setErrorState( true );
+		name,
+		attributes,
+		isDraggingBlocks,
+	} = useSelect( selector, [] );
 
 	const blockType = getBlockType( name );
 	// translators: %s: Type of block (i.e. Text, Image etc)
@@ -118,16 +84,16 @@ function BlockListBlock( {
 		// should only consider tabbables within editable display, since it
 		// may be the wrapper itself or a side control which triggered the
 		// focus event, don't unnecessary transition to an inner tabbable.
-		if ( wrapper.current.contains( document.activeElement ) ) {
+		if ( ref.current.contains( document.activeElement ) ) {
 			return;
 		}
 
 		// Find all tabbables within node.
 		const textInputs = focus.tabbable
-			.find( wrapper.current )
+			.find( ref.current )
 			.filter( isTextField )
 			// Exclude inner blocks
-			.filter( ( node ) => ! ignoreInnerBlocks || isInsideRootBlock( wrapper.current, node ) );
+			.filter( ( node ) => ! ignoreInnerBlocks || isInsideRootBlock( ref.current, node ) );
 
 		// If reversed (e.g. merge via backspace), use the last in the set of
 		// tabbables.
@@ -135,7 +101,7 @@ function BlockListBlock( {
 		const target = ( isReverse ? last : first )( textInputs );
 
 		if ( ! target ) {
-			wrapper.current.focus();
+			ref.current.focus();
 			return;
 		}
 
@@ -150,7 +116,7 @@ function BlockListBlock( {
 			if ( isSelected ) {
 				focusTabbable( ! isMounting.current );
 			} else if ( isFirstMultiSelected ) {
-				wrapper.current.focus();
+				ref.current.focus();
 			}
 		}
 
@@ -180,7 +146,7 @@ function BlockListBlock( {
 
 		switch ( keyCode ) {
 			case ENTER:
-				if ( target === wrapper.current ) {
+				if ( target === ref.current ) {
 					// Insert default block after current block if enter and event
 					// not already handled by descendant.
 					onInsertDefaultBlockAfter();
@@ -189,7 +155,7 @@ function BlockListBlock( {
 				break;
 			case BACKSPACE:
 			case DELETE:
-				if ( target === wrapper.current ) {
+				if ( target === ref.current ) {
 					// Remove block on backspace.
 					onRemove( clientId );
 					event.preventDefault();
@@ -249,7 +215,84 @@ function BlockListBlock( {
 			...blockType.getEditWrapperProps( attributes ),
 		};
 	}
+
 	const blockElementId = `block-${ clientId }`;
+
+	return (
+		<animated.p
+			{ ...props }
+			id={ blockElementId }
+			ref={ ref }
+			className={ wrapperClassName }
+			data-block={ clientId }
+			data-type={ name }
+			// Only allow shortcuts when a blocks is selected and not locked.
+			onKeyDown={ isSelected && ! isLocked ? onKeyDown : undefined }
+			// Only allow selection to be started from a selected block.
+			onMouseLeave={ isSelected ? onMouseLeave : undefined }
+			tabIndex="0"
+			aria-label={ blockLabel }
+			role="group"
+			{ ...wrapperProps }
+			style={
+				wrapperProps && wrapperProps.style ?
+					{
+						...wrapperProps.style,
+						...animationStyle,
+					} :
+					animationStyle
+			}
+		>
+			{ children }
+		</animated.p>
+	);
+} );
+
+function BlockListBlock( {
+	mode,
+	isFocusMode,
+	isLocked,
+	clientId,
+	isSelected,
+	isMultiSelected,
+	isPartOfMultiSelection,
+	isFirstMultiSelected,
+	isTypingWithinBlock,
+	isEmptyDefaultBlock,
+	isAncestorOfSelectedBlock,
+	isSelectionEnabled,
+	className,
+	name,
+	isValid,
+	attributes,
+	initialPosition,
+	wrapperProps,
+	setAttributes,
+	onReplace,
+	onInsertBlocksAfter,
+	onMerge,
+	onRemove,
+	onInsertDefaultBlockAfter,
+	toggleSelection,
+	animateOnChange,
+	enableAnimation,
+	isNavigationMode,
+	isMultiSelecting,
+	hasSelectedUI = true,
+} ) {
+	const {
+		__unstableSetSelectedMountedBlock,
+	} = useDispatch( 'core/block-editor' );
+
+	useLayoutEffect( () => {
+		if ( isSelected || isFirstMultiSelected ) {
+			__unstableSetSelectedMountedBlock( clientId );
+		}
+	}, [ isSelected, isFirstMultiSelected ] );
+
+	// Handling the error state
+	const [ hasError, setErrorState ] = useState( false );
+	const onBlockError = () => setErrorState( true );
 
 	// We wrap the BlockEdit component in a div that hides it when editing in
 	// HTML mode. This allows us to render all of the ancillary pieces
@@ -273,48 +316,33 @@ function BlockListBlock( {
 		blockEdit = <div style={ { display: 'none' } }>{ blockEdit }</div>;
 	}
 
-	return (
-		<animated.div
-			id={ blockElementId }
-			ref={ wrapper }
-			className={ wrapperClassName }
-			data-block={ clientId }
-			data-type={ name }
-			// Only allow shortcuts when a blocks is selected and not locked.
-			onKeyDown={ isSelected && ! isLocked ? onKeyDown : undefined }
-			// Only allow selection to be started from a selected block.
-			onMouseLeave={ isSelected ? onMouseLeave : undefined }
-			tabIndex="0"
-			aria-label={ blockLabel }
-			role="group"
-			{ ...wrapperProps }
-			style={
-				wrapperProps && wrapperProps.style ?
-					{
-						...wrapperProps.style,
-						...animationStyle,
-					} :
-					animationStyle
-			}
-		>
-			<BlockCrashBoundary onError={ onBlockError }>
-				{ isValid && blockEdit }
-				{ isValid && mode === 'html' && (
-					<BlockHtml clientId={ clientId } />
-				) }
-				{ ! isValid && [
-					<BlockInvalidWarning
-						key="invalid-warning"
-						clientId={ clientId }
-					/>,
-					<div key="invalid-preview">
-						{ getSaveElement( blockType, attributes ) }
-					</div>,
-				] }
-			</BlockCrashBoundary>
-			{ !! hasError && <BlockCrashWarning /> }
-		</animated.div>
-	);
+	const blockType = getBlockType( name );
+
+	return <>
+		<BlockCrashBoundary onError={ onBlockError }>
+			{ isValid && (
+				<>
+					{ blockEdit }
+					{ mode === 'html' && (
+						<Block clientId={ clientId }>
+							<BlockHtml clientId={ clientId } />
+						</Block>
+					) }
+				</>
+			) }
+			{ ! isValid && (
+				<Block clientId={ clientId }>
+					<BlockInvalidWarning clientId={ clientId } />
+					<div>{ getSaveElement( blockType, attributes ) }</div>
+				</Block>
+			) }
+		</BlockCrashBoundary>
+		{ !! hasError && (
+			<Block clientId={ clientId }>
+				<BlockCrashWarning />
+			</Block>
+		) }
+	</>;
 }
 
 const applyWithSelect = withSelect(
