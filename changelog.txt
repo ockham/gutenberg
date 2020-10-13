@@ -1,7 +1,8 @@
 == Changelog ==
 
-= 8.5.0-rc.4 =
+= 8.5.0-rc.5 =
 
+SUPER NICE
 
 
 = 8.4.0 =
