@@ -1,8 +1,8 @@
 == Changelog ==
 
-= 8.5.0-rc.5 =
+= 8.5.0-rc.6 =
 
-SUPER NICE
+asdasda
 
 
 = 8.4.0 =
