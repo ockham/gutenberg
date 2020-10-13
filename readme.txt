@@ -53,4 +53,4 @@ The four phases of the project are Editing, Customization, Collaboration, and Mu
 
 == Changelog ==
 
-To read the changelog for Gutenberg 8.5.0-rc.3, please navigate to the <a href="https://github.com/fullofcaffeine/gutenberg/releases/tag/v8.5.0-rc.3">release page</a>.
+To read the changelog for Gutenberg 8.5.0-rc.4, please navigate to the <a href="https://github.com/fullofcaffeine/gutenberg/releases/tag/v8.5.0-rc.4">release page</a>.

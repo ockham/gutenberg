@@ -1,8 +1,7 @@
 == Changelog ==
 
-= 8.5.0-rc.3 =
+= 8.5.0-rc.4 =
 
-sdoiasdasd:
 
 
 = 8.4.0 =
