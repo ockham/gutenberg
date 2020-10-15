@@ -1,8 +1,8 @@
 == Changelog ==
 
-= 9.2.0-rc.1 =
+= 9.2.0-rc.2 =
 
-sdas
+asdads
 
 
 = 9.1.0 =
