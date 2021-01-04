@@ -11,7 +11,7 @@ jobs:
     environment: wp.org plugin
     if: github.event.release.assets[0]
     env:
-      PLUGIN_REPO_URL: 'https://plugins.svn.wordpress.org/gutenberg'
+      PLUGIN_REPO_URL: 'https://svn.riouxsvn.com/gutenberg-test'
       STABLE_TAG_REGEX: 'Stable tag: [0-9]\+\.[0-9]\+\.[0-9]\+\s*'
       SVN_USERNAME: ${{ secrets.svn_username }}
       SVN_PASSWORD: ${{ secrets.svn_password }}
