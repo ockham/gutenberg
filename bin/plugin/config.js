@@ -35,7 +35,7 @@ const config = {
 	githubRepositoryURL: 'https://github.com/' + gitRepoOwner + '/gutenberg/',
 	wpRepositoryReleasesURL: 'https://github.com/WordPress/gutenberg/releases/',
 	gitRepositoryURL: 'https://github.com/' + gitRepoOwner + '/gutenberg.git',
-	svnRepositoryURL: 'https://plugins.svn.wordpress.org/gutenberg',
+	svnRepositoryURL: 'https://svn.riouxsvn.com/gutenberg-test',
 };
 
 module.exports = config;
