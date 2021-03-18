@@ -1,6 +1,6 @@
 == Changelog ==
 
-= 10.2.0-rc.1 =
+= 10.2.0 =
 
 ### Features
 
@@ -190,6 +190,8 @@
 - Site Editor: Browsing sidebar templates menu restructure. ([28291](https://github.com/WordPress/gutenberg/pull/28291))
 - RichText: Bypass paste filters for internal paste. ([27967](https://github.com/WordPress/gutenberg/pull/27967))
 - Block Directory: Update search results list UI. ([25521](https://github.com/WordPress/gutenberg/pull/25521))
+
+
 
 
 
