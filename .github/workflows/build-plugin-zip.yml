@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [trunk]
+    tags:
+    - 'v*'
   workflow_dispatch:
     inputs:
       version:
