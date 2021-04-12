@@ -32,7 +32,18 @@
 	},
 	"supports": {
 		"anchor": true,
-		"align": [ "left", "right", "wide", "full" ]
+		"align": [ "left", "right", "wide", "full" ],
+		"color": {
+			"gradients": true,
+			"background": true,
+			"link": true
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		}
 	},
 	"editorStyle": "wp-block-pullquote-editor",
 	"style": "wp-block-pullquote"
