@@ -16,9 +16,6 @@
 			"selector": "cite",
 			"default": "",
 			"__experimentalRole": "content"
-		},
-		"textColor": {
-			"type": "string"
 		}
 	},
 	"supports": {
