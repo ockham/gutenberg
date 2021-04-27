@@ -7,7 +7,6 @@ import { pullquote as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { SOLID_COLOR_STYLE_NAME } from './shared';
 import deprecated from './deprecated';
 import edit from './edit';
 import metadata from './block.json';
@@ -36,14 +35,6 @@ export const settings = {
 			citation: __( 'Matt Mullenweg' ),
 		},
 	},
-	styles: [
-		{
-			name: 'default',
-			label: _x( 'Default', 'block style' ),
-			isDefault: true,
-		},
-		{ name: SOLID_COLOR_STYLE_NAME, label: __( 'Solid color' ) },
-	],
 	transforms,
 	edit,
 	save,

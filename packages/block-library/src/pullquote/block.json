@@ -16,6 +16,9 @@
 			"selector": "cite",
 			"default": "",
 			"__experimentalRole": "content"
+		},
+		"textAlign": {
+			"type": "string"
 		}
 	},
 	"supports": {
