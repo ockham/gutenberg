@@ -67,46 +67,24 @@ function gutenberg_override_query_template( $template, $type, array $templates =
 	$current_template = gutenberg_resolve_template( $type, $templates );
 
 	// Allow falling back to a PHP template if it has a higher priority than the block template.
-	$current_template_slug       = basename( $template, '.php' );
 	$current_block_template_slug = is_object( $current_template ) ? $current_template->slug : false;
 	foreach ( $templates as $template_item ) {
-
-		$template_item_slug = gutenberg_strip_php_suffix( $template_item );
-
-		// Break the loop if the block-template matches the template slug.
-		if ( $current_block_template_slug === $template_item_slug ) {
-
-			// if the theme is a child theme we want to check if a php template exists.
-			if ( is_child_theme() ) {
-
-				$has_php_template   = file_exists( get_stylesheet_directory() . '/' . $current_template_slug . '.php' );
-				$block_template     = _gutenberg_get_template_file( 'wp_template', $current_block_template_slug );
-				$has_block_template = false;
-
-				if ( null !== $block_template && wp_get_theme()->get_stylesheet() === $block_template['theme'] ) {
-					$has_block_template = true;
-				}
-				// and that a corresponding block template from the theme and not the parent doesn't exist.
-				if ( $has_php_template && ! $has_block_template ) {
-					return $template;
-				}
-			}
-
-			break;
-		}
 
 		// Is this a custom template?
 		// This check should be removed when merged in core.
 		// Instead, wp_templates should be considered valid in locate_template.
-		$is_custom_template = 0 === strpos( $current_block_template_slug, 'wp-custom-template-' );
+		if ( 0 === strpos( $current_block_template_slug, 'wp-custom-template-' ) ) {
+			// This is loop independant, actually, so break.
+			break;
+		}
 
-		// Don't override the template if we find a template matching the slug we look for
-		// and which does not match a block template slug.
-		if (
-			! $is_custom_template &&
-			$current_template_slug !== $current_block_template_slug &&
-			$current_template_slug === $template_item_slug
-		) {
+		// Break the loop if the block-template matches the template slug.
+		if ( $current_block_template_slug === preg_replace( '/\.(php|html)$/', '', $template_item ) ) {
+			break;
+		}
+
+		// Don't override if we found a php file at this priority.
+		if ( false !== strpos( $template, $template_item ) ) {
 			return $template;
 		}
 	}
