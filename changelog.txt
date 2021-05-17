@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 10.6.1 =
+
+Test
+
+
 = 10.6.0 =
 
 ### New Features
