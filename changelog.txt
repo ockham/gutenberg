@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 12.6.0-rc.1 =
+
+Test
+
+
 = 12.5.0-rc.1 =
 
 ### Features
