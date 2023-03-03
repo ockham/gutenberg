@@ -71,7 +71,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
               with:
-                  token: ${{ secrets.GUTENBERG_TOKEN }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Compute old and new version
               id: get_version
@@ -298,44 +298,3 @@ jobs:
                   asset_path: ./gutenberg.zip
                   asset_name: gutenberg.zip
                   asset_content_type: application/zip
-
-    npm-publish:
-        name: Publish WordPress packages to npm
-        runs-on: ubuntu-latest
-        environment: WordPress packages
-        needs: [bump-version, build]
-        if: ${{ endsWith( needs.bump-version.outputs.new_version, '-rc.1' ) }}
-        steps:
-            - name: Checkout (for CLI)
-              uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
-              with:
-                  path: main
-                  ref: trunk
-
-            - name: Checkout (for publishing)
-              uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
-              with:
-                  path: publish
-                  # Later, we switch this branch in the script that publishes packages.
-                  ref: trunk
-                  token: ${{ secrets.GUTENBERG_TOKEN }}
-
-            - name: Configure git user name and email (for publishing)
-              run: |
-                  cd publish
-                  git config user.name "Gutenberg Repository Automation"
-                  git config user.email gutenberg@wordpress.org
-
-            - name: Setup Node (for CLI)
-              uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
-              with:
-                  node-version-file: 'main/.nvmrc'
-                  registry-url: 'https://registry.npmjs.org'
-
-            - name: Publish packages to npm ("latest" dist-tag)
-              run: |
-                  cd main
-                  npm ci
-                  ./bin/plugin/cli.js npm-latest --semver minor --ci --repository-path ../publish
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
