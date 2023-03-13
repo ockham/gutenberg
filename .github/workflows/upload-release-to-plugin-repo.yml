@@ -9,19 +9,19 @@ jobs:
         name: Check what is the latest stable version
         runs-on: ubuntu-latest
         outputs:
-            latest_stable_branch: ${{ steps.get_latest_stable_branch.outputs.latest_stable_branch }}
+            latest_stable_tag: ${{ steps.get_latest_stable_tag.outputs.latest_stable_tag }}
 
         steps:
             - uses: hmarr/debug-action@v2
-            - name: Get latest stable branch
-              id: get_latest_stable_branch
+            - name: Get latest stable ta
+              id: get_latest_stable_tag
               run: |
                   curl \
                     -H "Accept: application/vnd.github.v3+json" \
                     -o latest.json \
                     "https://api.github.com/repos/${{ github.repository }}/releases/latest"
                   LATEST_STABLE_TAG=$(jq --raw-output '.tag_name' latest.json)
-                  echo "latest_stable_branch=release/${LATEST_STABLE_TAG}" >> $GITHUB_OUTPUT
+                  echo "latest_stable_tag=${LATEST_STABLE_TAG}" >> $GITHUB_OUTPUT
 
     get-release-branch:
         name: Get release branch name
@@ -120,7 +120,7 @@ jobs:
         environment: wp.org plugin
         needs: [compute-latest-stable, update-changelog]
         if: |
-            endsWith( github.ref, needs.compute-latest-stable.outputs.latest_stable_branch ) &&
+            endsWith( github.ref, needs.compute-latest-stable.outputs.latest_stable_tag ) &&
             !github.event.release.prerelease && github.event.release.assets[0]
         env:
             PLUGIN_REPO_URL: 'http://caffeine.ngrok.io/svn/gutenberg'
@@ -128,8 +128,6 @@ jobs:
             SVN_USERNAME: ${{ secrets.svn_username }}
             SVN_PASSWORD: ${{ secrets.svn_password }}
             VERSION: ${{ github.event.release.name }}
-            GITHUB_REF: ${{ github.ref }}
-            LATEST_STABLE_BRANCH: ${{ needs.compute-latest-stable.outputs.latest_stable_branch }}
 
         steps:
             - uses: hmarr/debug-action@v2
@@ -191,7 +189,7 @@ jobs:
         environment: wp.org plugin
         needs: [compute-latest-stable, update-changelog]
         if: |
-            !endsWith( github.ref, needs.compute-latest-stable.outputs.latest_stable_branch ) &&
+            !endsWith( github.ref, needs.compute-latest-stable.outputs.latest_stable_tag ) &&
             !github.event.release.prerelease && github.event.release.assets[0]
         env:
             PLUGIN_REPO_URL: 'http://caffeine.ngrok.io/svn/gutenberg'
@@ -199,14 +197,9 @@ jobs:
             SVN_USERNAME: ${{ secrets.svn_username }}
             SVN_PASSWORD: ${{ secrets.svn_password }}
             VERSION: ${{ github.event.release.name }}
-            GITHUB_REF: ${{ github.ref }}
-            LATEST_STABLE_BRANCH: ${{ needs.compute-latest-stable.outputs.latest_stable_branch }}
 
         steps:
             - uses: hmarr/debug-action@v2
-            - name: Get previous stable version
-              id: get_previous_stable_version
-              run: echo "stable_version=$(awk -F ':\ ' '$1 == "Stable tag" {print $2}' ./trunk/readme.txt)" >> $GITHUB_OUTPUT
 
             - name: Check out Gutenberg branches from WP.org plugin repo
               run: svn checkout "$PLUGIN_REPO_URL/branches" --username "$SVN_USERNAME" --password "$SVN_PASSWORD"
@@ -223,7 +216,7 @@ jobs:
             - name: Replace the stable tag placeholder with the existing stable tag on the SVN repository
               env:
                   STABLE_TAG_PLACEHOLDER: 'Stable tag: V\.V\.V'
-                  STABLE_TAG: 'Stable tag: ${{ steps.get_previous_stable_version.outputs.stable_version }}'
+                  STABLE_TAG: 'Stable tag: foobar'
               run: sed -i "s/${STABLE_TAG_PLACEHOLDER}/${STABLE_TAG}/g" ./branches/$VERSION/readme.txt
 
             - name: Download Changelog Artifact
