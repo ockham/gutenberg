@@ -200,6 +200,10 @@ jobs:
             - name: Check out Gutenberg branches from WP.org plugin repo
               run: svn checkout "$PLUGIN_REPO_URL/branches" --username "$SVN_USERNAME" --password "$SVN_PASSWORD"
 
+            - name: Get previous stable version
+              id: get_previous_stable_version
+              run: echo "stable_version=$(awk -F ':\ ' '$1 == "Stable tag" {print $2}' ./trunk/readme.txt)" >> $GITHUB_OUTPUT
+
             - name: Download and unzip Gutenberg plugin asset into trunk folder
               env:
                   PLUGIN_URL: ${{ github.event.release.assets[0].browser_download_url }}
