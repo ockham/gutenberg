@@ -6,7 +6,7 @@ on:
 
 jobs:
     compute-latest-stable:
-        name: Check what is the latest stable version
+        name: Get latest stable version
         runs-on: ubuntu-latest
         outputs:
             latest_stable_tag: ${{ steps.get_latest_stable_tag.outputs.latest_stable_tag }}
@@ -150,7 +150,7 @@ jobs:
               env:
                   STABLE_TAG_PLACEHOLDER: 'Stable tag: V\.V\.V'
               run: |
-                  sed -i "s/$STABLE_TAG_PLACEHOLDER/Stable tag: $VERSION/g" ./trunk/$VERSION/readme.txt
+                  sed -i "s/$STABLE_TAG_PLACEHOLDER/Stable tag: $VERSION/g" ./trunk/readme.txt
 
             - name: Download Changelog Artifact
               uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7 # v3.0.1
