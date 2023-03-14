@@ -1,5 +1,19 @@
 == Changelog ==
 
+= 15.4.2 =
+
+
+
+HttpError: API rate limit exceeded for 13.83.14.137. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+    at /home/runner/work/gutenberg/gutenberg/node_modules/@octokit/request/dist-node/index.js:85:23
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at async getLatestReleaseInSeries (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:636:20)
+    at async fetchAllPullRequests (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:675:5)
+    at async createChangelog (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:974:24)
+    at async getReleaseChangelog (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:1000:2)
+    at async Command.<anonymous> (/home/runner/work/gutenberg/gutenberg/bin/plugin/cli.js:11:4)
+
+
 = 15.4.1 =
 
 
