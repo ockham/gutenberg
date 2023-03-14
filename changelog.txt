@@ -1,5 +1,17 @@
 == Changelog ==
 
+= 15.3.5 =
+
+
+
+Error: There are no unreleased pull requests associated with the milestone.
+    at fetchAllPullRequests (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:691:10)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at async createChangelog (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:974:24)
+    at async getReleaseChangelog (/home/runner/work/gutenberg/gutenberg/bin/plugin/commands/changelog.js:1000:2)
+    at async Command.<anonymous> (/home/runner/work/gutenberg/gutenberg/bin/plugin/cli.js:11:4)
+
+
 = 15.3.4 =
 
 
