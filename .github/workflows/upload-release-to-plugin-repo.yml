@@ -149,7 +149,7 @@ jobs:
             - name: Replace the stable tag placeholder with the existing stable tag on the SVN repository
               env:
                   STABLE_TAG_PLACEHOLDER: 'Stable tag: V\.V\.V'
-                  STABLE_TAG: 'Stable tag: ${{ $VERSION }}'
+                  STABLE_TAG: 'Stable tag: $VERSION'
               run: sed -i "s/${STABLE_TAG_PLACEHOLDER}/${STABLE_TAG}/g" ./trunk/readme.txt
 
             - name: Download Changelog Artifact
