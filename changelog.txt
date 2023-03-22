@@ -1,6 +1,8 @@
 == Changelog ==
 
-= 15.4.0-rc.1 =
+= 15.4.0 =
+
+Test
 
 ## Changelog
 
@@ -319,6 +321,8 @@ The following PRs were merged by first time contributors:
 The following contributors merged PRs in this release:
 
 @aaronrobertshaw @afercia @ajlende @andrewserong @anver @aristath @bhavz-10 @brookewp @chad1008 @ciampo @DaisyOlsen @dcalhoun @draganescu @ellatrix @fabiankaegy @felixarntz @flootr @fluiddot @geriux @getdave @glendaviesnz @gvgvgvijayan @gziolo @hideokamoto @jameskoster @jasmussen @jeryj @jorgefilipecosta @jsnajdr @kevin940726 @kienstra @krishneup @MaggieCabrera @Mamaduka @mburridge @mike-day @mirka @mtias @ndiego @ntsekouras @oandregal @Rahmon @richtabor @ryanwelcher @SavPhill @scruffian @shvlv @SiobhyB @swissspidy @t-hamano @talldan @tellthemachines @tomdevisser @TylerB24890 @tyxla @WunderBart @youknowriad
+
+
 
 
 = 15.3.1 =
