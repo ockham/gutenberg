@@ -14,7 +14,7 @@ jobs:
         # the string "rc". The latter is fallback in case the deployer accidentally
         # unchecks the "This is a pre-release" checkbox in the release UI.
         if: |
-            !github.event.release.prerelease || !contains(github.ref, 'rc')
+            !github.event.release.prerelease && !contains(github.ref, 'rc')
         outputs:
             should_update_trunk: ${{ steps.compute_should_update_trunk.outputs.should_update_trunk }}
 
